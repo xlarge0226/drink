@@ -2,59 +2,500 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>酒駕案件處置助手</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>酒駕案件處理與舉發助手</title>
   <style>
-    body {
-      margin: 0;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
+    :root {
+      --bg-main: #0b0f17;
+      --bg-card: #151c28;
+      --bg-card-hover: #1e2738;
+      --bg-nav: #111622;
+      --border: #2a3548;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --danger: #f87171;
+      --danger-soft: rgba(248, 113, 113, 0.15);
+      --warning: #fbbf24;
+      --warning-soft: rgba(251, 191, 36, 0.15);
+      --success: #34d399;
+      --success-soft: rgba(52, 211, 153, 0.15);
     }
-    .box {
-      max-width: 720px;
-      margin: 0 auto;
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .ok {
-      color: #4ade80;
-      font-weight: bold;
-    }
-    pre {
-      white-space: pre-wrap;
-      background: #0f172a;
-      padding: 12px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-main); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif; line-height: 1.6; padding-bottom: 86px; }
+    header { position: sticky; top: 0; z-index: 20; background: rgba(11, 15, 23, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; font-weight: 700; }
+    .badge-top { font-size: 0.75rem; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); }
+    main { max-width: 680px; margin: 0 auto; padding: 16px; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .breadcrumb { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; font-size: 0.8rem; color: var(--text-secondary); }
+    .crumb-item { background: var(--bg-card); border: 1px solid var(--border); padding: 2px 8px; border-radius: 6px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+    .step-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+    .step-desc { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px; white-space: pre-line; }
+    .option-list { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn { width: 100%; text-align: left; background: #1a2232; border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--text-primary); cursor: pointer; }
+    .option-btn:hover, .option-btn:active { background: var(--bg-card-hover); border-color: var(--accent); }
+    .option-btn .opt-title { font-size: 1rem; font-weight: 600; display: block; margin-bottom: 3px; }
+    .option-btn .opt-sub { font-size: 0.82rem; color: var(--text-secondary); display: block; }
+    .check-option { display: flex; align-items: flex-start; gap: 12px; background: #1a2232; border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; cursor: pointer; }
+    .check-option input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+    .btn { flex: 1; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.95rem; font-weight: 600; cursor: pointer; text-align: center; }
+    .btn-primary { background: var(--accent); color: #06101d; border-color: var(--accent); }
+    .btn-secondary { background: transparent; color: var(--text-primary); }
+    .verdict-box { border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid; }
+    .verdict-danger { background: var(--danger-soft); border-color: rgba(248, 113, 113, 0.4); }
+    .verdict-warning { background: var(--warning-soft); border-color: rgba(251, 191, 36, 0.4); }
+    .verdict-success { background: var(--success-soft); border-color: rgba(52, 211, 153, 0.4); }
+    .verdict-label { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+    .verdict-main { font-size: 1.08rem; font-weight: 700; }
+    .detail-list { list-style: none; margin-top: 10px; }
+    .detail-list li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+    .detail-list li:last-child { border-bottom: none; }
+    .template-box { background: #0d121c; border: 1px dashed #3b4a63; border-radius: 10px; padding: 12px; font-size: 0.9rem; margin: 10px 0; white-space: pre-wrap; color: #e2e8f0; }
+    .copy-btn { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.4); padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .timer-display { font-size: 3.4rem; font-weight: 800; font-variant-numeric: tabular-nums; text-align: center; margin: 20px 0; color: var(--accent); letter-spacing: 2px; }
+    .timer-display.done { color: var(--success); }
+    .search-input { width: 100%; background: #1a2232; border: 1px solid var(--border); color: var(--text-primary); padding: 12px 14px; border-radius: 10px; font-size: 0.95rem; margin-bottom: 14px; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: var(--bg-nav); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(6, 1fr); z-index: 30; }
+    .nav-btn { background: none; border: none; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 0.66rem; cursor: pointer; position: relative; padding: 4px 2px; }
+    .nav-btn.active { color: var(--accent); font-weight: 700; }
+    .nav-icon { font-size: 1.1rem; line-height: 1; }
+    .timer-dot { position: absolute; top: 9px; right: 22%; width: 7px; height: 7px; background: var(--warning); border-radius: 50%; display: none; }
+    .timer-dot.running { display: block; }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>酒駕案件處置助手（測試畫面）</h2>
-    <p id="status">正在檢查 data.js ...</p>
-    <pre id="debug"></pre>
-  </div>
-  <script src="data.js"></script>
+  <header>
+    <h1>酒駕案件處置助手</h1>
+    <span class="badge-top">Dark Field Mode</span>
+  </header>
+  <main>
+    <div id="global-error" style="display:none;" class="card verdict-box verdict-danger">
+      <div class="verdict-label">腳本執行提示</div>
+      <div id="global-error-msg" style="font-size:0.88rem; white-space:pre-wrap;"></div>
+    </div>
+    <section id="tab-home" class="tab-section active">
+      <div id="breadcrumb" class="breadcrumb"></div>
+      <div id="wizard-container"></div>
+    </section>
+    <section id="tab-tickets" class="tab-section">
+      <div class="card"><div class="step-title">罰單例稿</div><div class="step-desc">點擊複製即可貼入使用，請依現場實際人車與數值修改括號內容。</div></div>
+      <div id="tickets-container"></div>
+    </section>
+    <section id="tab-notes" class="tab-section">
+      <div class="card"><div class="step-title">筆錄範例</div><div class="step-desc">提供酒駕／公共危險偵詢常見問答與紀錄範例，可一鍵複製依現場事實調整。</div></div>
+      <div id="notes-container"></div>
+    </section>
+    <section id="tab-checklist" class="tab-section">
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div><div class="step-title">卷宗檢核</div><div class="step-desc" style="margin-bottom:0;">自動記憶勾選進度</div></div>
+        <button class="btn-secondary" style="padding:6px 12px; border-radius:8px; font-size:0.8rem;" onclick="resetChecklist()">重置</button>
+      </div>
+      <div id="checklist-container"></div>
+    </section>
+    <section id="tab-laws" class="tab-section">
+      <input type="text" id="law-search" class="search-input" placeholder="搜尋關鍵字（例如：35條、185-3、逮捕、權利、乘客）..." oninput="renderLaws(this.value)" />
+      <div id="laws-container"></div>
+    </section>
+    <section id="tab-timer" class="tab-section">
+      <div class="card">
+        <div class="step-title">15 分鐘計時器</div>
+        <div class="step-desc">受測人飲酒結束或漱口後須滿 15 分鐘再進行吐氣酒精濃度測試。</div>
+        <div id="timer-display" class="timer-display">15:00</div>
+        <div id="timer-status" style="text-align:center; color:var(--text-secondary); font-size:0.9rem; margin-bottom:16px;">尚未開始計時</div>
+        <div class="btn-row">
+          <button id="timer-toggle-btn" class="btn btn-primary" onclick="toggleTimer()">開始計時</button>
+          <button class="btn btn-secondary" onclick="resetTimer()">重設 15 分</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="tab-home" onclick="switchTab('tab-home', this)"><span class="nav-icon">🧭</span><span>主畫面</span></button>
+    <button class="nav-btn" data-tab="tab-tickets" onclick="switchTab('tab-tickets', this)"><span class="nav-icon">📝</span><span>罰單例稿</span></button>
+    <button class="nav-btn" data-tab="tab-notes" onclick="switchTab('tab-notes', this)"><span class="nav-icon">📄</span><span>筆錄範例</span></button>
+    <button class="nav-btn" data-tab="tab-checklist" onclick="switchTab('tab-checklist', this)"><span class="nav-icon">☑️</span><span>卷宗檢核</span></button>
+    <button class="nav-btn" data-tab="tab-laws" onclick="switchTab('tab-laws', this)"><span class="nav-icon">⚖️</span><span>法令查詢</span></button>
+    <button class="nav-btn" data-tab="tab-timer" onclick="switchTab('tab-timer', this)"><span class="timer-dot" id="nav-timer-dot"></span><span class="nav-icon">⏱️</span><span>15分計時</span></button>
+  </nav>
   <script>
-    const statusEl = document.getElementById('status');
-    const debugEl = document.getElementById('debug');
-    if (window.DUI_DATA) {
-      statusEl.innerHTML = '<span class="ok">✓ 畫面正常顯示，且 data.js 已成功載入！</span>';
-      debugEl.textContent = JSON.stringify({
-        stepsCount: Object.keys(window.DUI_DATA.steps || {}).length,
-        ticketsCount: (window.DUI_DATA.tickets || []).length,
-        notesCount: (window.DUI_DATA.notes || []).length,
-        checklistsCount: (window.DUI_DATA.checklists || []).length,
-        lawsCount: (window.DUI_DATA.laws || []).length
-      }, null, 2);
-    } else {
-      statusEl.textContent = '✗ 畫面有顯示，但 window.DUI_DATA 沒有載入（代表 data.js 仍有語法錯或檔名／路徑不對）。';
+    window.addEventListener('error', function(e) {
+      var box = document.getElementById('global-error');
+      var msg = document.getElementById('global-error-msg');
+      if (box && msg) {
+        box.style.display = 'block';
+        msg.textContent = (e.message || '未知錯誤') + (e.filename ? '\n檔案：' + e.filename + ' (第 ' + e.lineno + ' 行)' : '');
+      }
+    });
+  </script>
+  <script src="./data.js" onload="initApp()" onerror="showDataError()"></script>
+  <script>
+    var historyStack = [];
+    var currentStepId = 'step_bac';
+    var answers = {};
+    var appInitialized = false;
+
+    function getData() {
+      return window.DUI_DATA || (typeof DUI_DATA !== 'undefined' ? DUI_DATA : null);
     }
+
+    function showDataError() {
+      var container = document.getElementById('wizard-container');
+      if (container) {
+        container.innerHTML = '<div class="card verdict-box verdict-danger"><div class="verdict-label">檔案連結失敗</div><div class="verdict-main">找不到或無法讀取 ./data.js</div><div style="font-size:0.88rem; margin-top:6px;">請確認專案根目錄有 <code>data.js</code>，且語法正確。</div></div>';
+      }
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-section').forEach(function(sec) { sec.classList.remove('active'); });
+      var targetSec = document.getElementById(tabId);
+      if (targetSec) targetSec.classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(function(btn) { btn.classList.remove('active'); });
+      if (btnEl) {
+        btnEl.classList.add('active');
+      } else {
+        var targetBtn = document.querySelector('.nav-btn[data-tab="' + tabId + '"]');
+        if (targetBtn) targetBtn.classList.add('active');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderWizard() {
+      var data = getData();
+      if (!data) return showDataError();
+
+      var container = document.getElementById('wizard-container');
+      var bc = document.getElementById('breadcrumb');
+      bc.innerHTML = historyStack.map(function(h) { return '<span class="crumb-item">' + escapeHtml(h.label) + '</span>'; }).join('');
+
+      if (currentStepId === 'RESULT') {
+        var result = data.evaluateCase(answers);
+        container.innerHTML =
+          '<div class="card">' +
+            '<div class="step-title">案件處置與舉發判定結果</div>' +
+            '<div class="step-desc">依據上述條件綜合判斷：</div>' +
+            '<div class="verdict-box ' + result.criminalClass + '">' +
+              '<div class="verdict-label">刑事移送／權利告知判斷</div>' +
+              '<div class="verdict-main">' + escapeHtml(result.criminalTitle) + '</div>' +
+              '<div style="font-size:0.88rem; margin-top:4px; white-space:pre-line;">' + escapeHtml(result.criminalDesc) + '</div>' +
+            '</div>' +
+            '<div class="verdict-box ' + result.adminClass + '">' +
+              '<div class="verdict-label">罰單張數、對象與開立方式</div>' +
+              '<div class="verdict-main">' + escapeHtml(result.adminTitle) + '</div>' +
+              '<div style="font-size:0.88rem; margin-top:4px; white-space:pre-line;">' + escapeHtml(result.adminDesc) + '</div>' +
+            '</div>' +
+            '<div style="font-weight:700; margin-top:14px; font-size:0.95rem;">卷宗與現場處置重點：</div>' +
+            '<ul class="detail-list">' +
+              result.actions.map(function(act) { return '<li>• ' + escapeHtml(act) + '</li>'; }).join('') +
+            '</ul>' +
+            '<div class="btn-row">' +
+              '<button class="btn btn-secondary" onclick="goBack()">← 上一步</button>' +
+              '<button class="btn btn-primary" onclick="jumpToTicket(\'' + escapeHtml(result.recommendedTicketId || '') + '\')">查看罰單例稿</button>' +
+            '</div>' +
+            '<div class="btn-row" style="margin-top:8px;">' +
+              '<button class="btn btn-secondary" onclick="restartWizard()">重新評估新案件</button>' +
+            '</div>' +
+          '</div>';
+        return;
+      }
+
+      var firstStepKey = Object.keys(data.steps)[0];
+      if (!data.steps[currentStepId]) {
+        currentStepId = firstStepKey;
+      }
+      var step = data.steps[currentStepId];
+      if (!step) return;
+
+      container.innerHTML =
+        '<div class="card">' +
+          '<div class="step-title">' + escapeHtml(step.title) + '</div>' +
+          '<div class="step-desc">' + escapeHtml(step.desc) + '</div>' +
+          '<div class="option-list">' +
+            step.options.map(function(opt) {
+              return '<button class="option-btn" onclick="selectOption(\'' + escapeHtml(step.key) + '\', \'' + escapeHtml(opt.value) + '\', \'' + escapeHtml(opt.title) + '\', \'' + escapeHtml(opt.next) + '\')">' +
+                '<span class="opt-title">' + escapeHtml(opt.title) + '</span>' +
+                (opt.sub ? '<span class="opt-sub">' + escapeHtml(opt.sub) + '</span>' : '') +
+              '</button>';
+            }).join('') +
+          '</div>' +
+          (historyStack.length > 0 ?
+            '<div class="btn-row">' +
+              '<button class="btn btn-secondary" onclick="goBack()">← 返回上一步</button>' +
+              '<button class="btn btn-secondary" onclick="restartWizard()">重新開始</button>' +
+            '</div>' : '') +
+        '</div>';
+    }
+
+    function selectOption(key, value, label, nextStepId) {
+      historyStack.push({ stepId: currentStepId, key: key, label: label });
+      answers[key] = value;
+      currentStepId = nextStepId;
+      renderWizard();
+    }
+
+    function goBack() {
+      if (historyStack.length === 0) return;
+      var prev = historyStack.pop();
+      delete answers[prev.key];
+      currentStepId = prev.stepId;
+      renderWizard();
+    }
+
+    function restartWizard() {
+      var data = getData();
+      historyStack = [];
+      answers = {};
+      currentStepId = data ? Object.keys(data.steps)[0] : 'step_bac';
+      renderWizard();
+    }
+
+    function jumpToTicket(ticketId) {
+      switchTab('tab-tickets');
+      if (ticketId) {
+        var el = document.getElementById('ticket-' + ticketId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function renderTickets() {
+      var data = getData();
+      if (!data || !data.tickets) return;
+      var container = document.getElementById('tickets-container');
+      container.innerHTML = '';
+      data.tickets.forEach(function(t) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.id = 'ticket-' + t.id;
+
+        var topRow = document.createElement('div');
+        topRow.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-start; gap:8px;';
+
+        var info = document.createElement('div');
+        info.innerHTML = '<div class="step-title" style="font-size:1.05rem;">' + escapeHtml(t.title) + '</div><div style="font-size:0.82rem; color:var(--accent);">' + escapeHtml(t.article || '') + (t.fine ? ' ｜ ' + escapeHtml(t.fine) : '') + '</div>';
+
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = '複製例稿';
+        btn.onclick = function() { copyText(t.template || '', btn); };
+
+        topRow.appendChild(info);
+        topRow.appendChild(btn);
+
+        var tpl = document.createElement('div');
+        tpl.className = 'template-box';
+        tpl.textContent = t.template || '';
+
+        card.appendChild(topRow);
+        card.appendChild(tpl);
+
+        if (t.note) {
+          var note = document.createElement('div');
+          note.style.cssText = 'font-size:0.82rem; color:var(--text-secondary);';
+          note.textContent = t.note;
+          card.appendChild(note);
+        }
+        container.appendChild(card);
+      });
+    }
+
+    function renderNotes() {
+      var data = getData();
+      var container = document.getElementById('notes-container');
+      if (!data || !data.notes || !data.notes.length) {
+        container.innerHTML = '<div class="card" style="color:var(--text-secondary);">尚未填入筆錄範例資料。</div>';
+        return;
+      }
+      container.innerHTML = '';
+      data.notes.forEach(function(n) {
+        var card = document.createElement('div');
+        card.className = 'card';
+
+        var topRow = document.createElement('div');
+        topRow.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-start; gap:8px;';
+
+        var info = document.createElement('div');
+        info.innerHTML = '<div class="step-title" style="font-size:1.05rem;">' + escapeHtml(n.title) + '</div>' + (n.sub ? '<div style="font-size:0.82rem; color:var(--accent);">' + escapeHtml(n.sub) + '</div>' : '');
+
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = '複製範例';
+        btn.onclick = function() { copyText(n.template || '', btn); };
+
+        topRow.appendChild(info);
+        topRow.appendChild(btn);
+
+        var tpl = document.createElement('div');
+        tpl.className = 'template-box';
+        tpl.textContent = n.template || '';
+
+        card.appendChild(topRow);
+        card.appendChild(tpl);
+
+        if (n.note) {
+          var note = document.createElement('div');
+          note.style.cssText = 'font-size:0.82rem; color:var(--text-secondary);';
+          note.textContent = n.note;
+          card.appendChild(note);
+        }
+        container.appendChild(card);
+      });
+    }
+
+    function copyText(text, btn) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.textContent;
+          btn.textContent = '已複製 ✓';
+          setTimeout(function() { btn.textContent = orig; }, 1500);
+        });
+      }
+    }
+
+    function renderChecklist() {
+      var data = getData();
+      if (!data || !data.checklists) return;
+      var saved = JSON.parse(localStorage.getItem('dui_checklist_v1') || '{}');
+      var container = document.getElementById('checklist-container');
+      container.innerHTML = data.checklists.map(function(group, gIdx) {
+        return '<div class="card">' +
+          '<div class="step-title" style="font-size:1.02rem; margin-bottom:10px; color:var(--accent);">' + escapeHtml(group.category) + '</div>' +
+          '<div class="option-list">' +
+            group.items.map(function(item, iIdx) {
+              var id = 'chk_' + gIdx + '_' + iIdx;
+              var isChecked = !!saved[id];
+              return '<label class="check-option">' +
+                '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' onchange="toggleCheckItem(\'' + id + '\', this.checked)" />' +
+                '<div>' +
+                  '<span class="opt-title" style="font-size:0.95rem;">' + escapeHtml(item.title) + '</span>' +
+                  (item.sub ? '<span class="opt-sub">' + escapeHtml(item.sub) + '</span>' : '') +
+                '</div>' +
+              '</label>';
+            }).join('') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function toggleCheckItem(id, checked) {
+      var saved = JSON.parse(localStorage.getItem('dui_checklist_v1') || '{}');
+      saved[id] = checked;
+      localStorage.setItem('dui_checklist_v1', JSON.stringify(saved));
+    }
+
+    function resetChecklist() {
+      localStorage.removeItem('dui_checklist_v1');
+      renderChecklist();
+    }
+
+    function renderLaws(keyword) {
+      var data = getData();
+      if (!data || !data.laws) return;
+      var kw = String(keyword || '').trim().toLowerCase();
+      var filtered = data.laws.filter(function(law) {
+        return !kw ||
+          law.title.toLowerCase().indexOf(kw) !== -1 ||
+          (law.tags || '').toLowerCase().indexOf(kw) !== -1 ||
+          law.content.toLowerCase().indexOf(kw) !== -1;
+      });
+      var container = document.getElementById('laws-container');
+      container.innerHTML = filtered.map(function(law) {
+        return '<div class="card">' +
+          '<div class="step-title" style="font-size:1.02rem; color:var(--accent);">' + escapeHtml(law.title) + '</div>' +
+          (law.tags ? '<div style="font-size:0.78rem; color:var(--warning); margin-bottom:8px;">關鍵標籤：' + escapeHtml(law.tags) + '</div>' : '') +
+          '<div style="font-size:0.9rem; white-space:pre-line; color:var(--text-primary);">' + escapeHtml(law.content) + '</div>' +
+        '</div>';
+      }).join('') || '<div class="card" style="text-align:center; color:var(--text-secondary);">查無相符法條內容</div>';
+    }
+
+    var timerSeconds = 15 * 60;
+    var timerInterval = null;
+
+    function updateTimerUI() {
+      var mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      var secs = String(timerSeconds % 60).padStart(2, '0');
+      var display = document.getElementById('timer-display');
+      display.textContent = mins + ':' + secs;
+      if (timerSeconds === 0) {
+        display.classList.add('done');
+        document.getElementById('timer-status').textContent = '已滿 15 分鐘，可進行酒測！';
+      } else {
+        display.classList.remove('done');
+      }
+    }
+
+    function toggleTimer() {
+      var btn = document.getElementById('timer-toggle-btn');
+      var dot = document.getElementById('nav-timer-dot');
+      var status = document.getElementById('timer-status');
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.textContent = '繼續計時';
+        dot.classList.remove('running');
+        status.textContent = '計時已暫停';
+      } else {
+        if (timerSeconds === 0) timerSeconds = 15 * 60;
+        btn.textContent = '暫停計時';
+        dot.classList.add('running');
+        status.textContent = '計時中...';
+        timerInterval = setInterval(function() {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            updateTimerUI();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            btn.textContent = '重新計時';
+            dot.classList.remove('running');
+            if (navigator.vibrate) navigator.vibrate([300, 150, 300]);
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = 15 * 60;
+      document.getElementById('timer-toggle-btn').textContent = '開始計時';
+      document.getElementById('nav-timer-dot').classList.remove('running');
+      document.getElementById('timer-status').textContent = '已重設為 15 分鐘';
+      updateTimerUI();
+    }
+
+    function initApp() {
+      if (appInitialized) return;
+      var data = getData();
+      if (!data) return showDataError();
+      appInitialized = true;
+      if (data.steps) {
+        currentStepId = Object.keys(data.steps)[0];
+      }
+      renderWizard();
+      renderTickets();
+      renderNotes();
+      renderChecklist();
+      renderLaws();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (getData()) initApp();
+    });
   </script>
 </body>
 </html>
