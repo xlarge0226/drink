@@ -75,12 +75,12 @@
     <button class="nb" data-p="laws" onclick="go('laws',this)">⚖️<br>法令查詢</button>
     <button class="nb" data-p="timer" onclick="go('timer',this)">⏱️<br>15分計時</button>
   </nav>
-  <script>
+    <script>
     window.addEventListener('error',function(e){var b=document.getElementById('err');if(b){b.style.display='block';b.textContent='錯誤：'+(e.message||'')+(e.lineno?' (第'+e.lineno+'行)':'');}});
   </script>
   <script src="./data.js" onload="if(typeof initApp==='function')initApp()" onerror="showDataErr()"></script>
   <script>
-    var stepId='step_start', hist=[], inited=false, sec=900, iv=null;
+    var stepId='step_start', hist=[], inited=false, sec=900, iv=null, twoTicketsMode=false;
     function gd(){return window.DUI_DATA||(typeof DUI_DATA!=='undefined'?DUI_DATA:null);}
     function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function showDataErr(){var c=document.getElementById('wizard-container');if(c)c.innerHTML='<div class="card"><div class="h">讀取失敗</div><div class="d">無法載入 ./data.js</div></div>';}
@@ -90,6 +90,7 @@
       var t=document.getElementById('page-'+p);if(t)t.classList.add('active');
       document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
       if(el)el.classList.add('active');
+      if(p==='tickets'){var d=gd();if(d)renderTickets(d.tickets);}
     }
     function cp(txt,btn){
       var ok=function(){if(!btn)return;var o=btn.textContent;btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent=o;},1500);};
@@ -98,14 +99,26 @@
     function renderCards(id,arr,emptyMsg){
       var box=document.getElementById(id);if(!box)return;
       if(!Array.isArray(arr)||!arr.length){box.innerHTML='<div class="card"><div class="d">'+emptyMsg+'</div></div>';return;}
-      box.innerHTML=arr.map(function(it,i){
+      box.innerHTML=arr.map(function(it){
         var t=it.template||'';
-        return '<div class="card">'+(t?'<button class="copy" type="button" onclick="cp(DUI_DATA.'+id+'['+i+'].template,this)">複製範例</button>':'')+
+        return '<div class="card">'+(t?'<button class="copy" type="button" data-tpl="'+encodeURIComponent(t)+'" onclick="cp(decodeURIComponent(this.getAttribute(\'data-tpl\')),this)">複製範例</button>':'')+
           '<div class="h">'+esc(it.title)+'</div>'+(it.sub?'<div class="s">'+esc(it.sub)+'</div>':'')+
           (t?'<div class="tpl">'+esc(t)+'</div>':'')+
           (it.content||it.text?'<div class="d">'+esc(it.content||it.text)+'</div>':'')+
           (it.note?'<div class="d" style="font-size:.8rem;margin-bottom:0">'+esc(it.note)+'</div>':'')+'</div>';
       }).join('');
+    }
+    function renderTickets(arr){
+      if(!Array.isArray(arr)){renderCards('tickets',[],'尚無罰單例稿');return;}
+      var list=arr.slice();
+      if(twoTicketsMode){
+        list.sort(function(a,b){
+          var a2=(a.id==='ticket_other_traffic'||String(a.title||'').indexOf('第 2 張')!==-1)?0:1;
+          var b2=(b.id==='ticket_other_traffic'||String(b.title||'').indexOf('第 2 張')!==-1)?0:1;
+          return a2-b2;
+        });
+      }
+      renderCards('tickets',list,'尚無罰單例稿');
     }
     function renderWizard(){
       var d=gd(),box=document.getElementById('wizard-container');if(!box||!d||!d.steps)return;
@@ -117,9 +130,18 @@
       html+='<button class="btn" type="button" onclick="resetStep()">重新開始</button></div>';
       box.innerHTML=html;
     }
-    function pickStep(n){var d=gd();if(n&&d&&d.steps&&d.steps[n]){hist.push(stepId);stepId=n;renderWizard();}}
-    function backStep(){if(hist.length){stepId=hist.pop();renderWizard();}}
-    function resetStep(){hist=[];var d=gd();if(d&&d.steps)stepId=Object.keys(d.steps)[0];renderWizard();}
+    function pickStep(n){
+      var d=gd();
+      if(n&&d&&d.steps&&d.steps[n]){
+        hist.push(stepId);
+        stepId=n;
+        twoTicketsMode=(n==='verdict_2_tickets');
+        renderWizard();
+        if(d.tickets)renderTickets(d.tickets);
+      }
+    }
+    function backStep(){if(hist.length){stepId=hist.pop();twoTicketsMode=(stepId==='verdict_2_tickets');renderWizard();}}
+    function resetStep(){hist=[];twoTicketsMode=false;var d=gd();if(d&&d.steps)stepId=Object.keys(d.steps)[0];renderWizard();}
     function renderChecklist(){
       var d=gd(),box=document.getElementById('checklist-container');if(!box)return;
       if(!d||!Array.isArray(d.checklist)||!d.checklist.length){box.innerHTML='<div class="card"><div class="d">尚無檢核項目</div></div>';return;}
@@ -145,9 +167,7 @@
     function resetTimer(n){if(iv){clearInterval(iv);iv=null;}sec=n;showT();var b=document.getElementById('t-btn');if(b)b.textContent='開始計時';}
     function initApp(){
       if(inited)return;var d=gd();if(!d)return showDataErr();inited=true;
-      renderWizard();
-      renderCards('tickets',d.tickets,'尚無罰單例稿');
-      renderCards('notes',d.notes,'尚無筆錄範例');
+      renderWizard();renderTickets(d.tickets);renderCards('notes',d.notes,'尚無筆錄範例');
       renderChecklist();renderLaws();showT();
     }
     document.addEventListener('DOMContentLoaded',function(){if(gd())initApp();});
