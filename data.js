@@ -3,18 +3,18 @@ window.DUI_DATA = {
     step_bac: {
       key: 'bac',
       title: '第 1 步：酒測值是否達標？或拒絕酒測？',
-      desc: '⚠️ 提醒：飲酒結束或漱口後須滿 15 分鐘再測（可切至「15分計時」倒數）。若當事人拒絕酒測，須先明確告知拒測法律後果並全程錄影。',
+      desc: '飲酒結束或漱口後須滿 15 分鐘再測（可切至 15分計時倒數）。若拒絕酒測，須先明確告知拒測法律後果並全程錄影。',
       options: [
         { value: 'under_015', title: '0 - 0.14 mg/L', sub: '未達一般酒駕行政處罰門檻', next: 'step_road' },
-        { value: '015_024', title: '0.15 - 0.24 mg/L', sub: '選後判斷有無肇事：有肇事＝公共危險罪＋逮捕告知三項權利；無肇事＝行政罰', next: 'step_accident' },
+        { value: '015_024', title: '0.15 - 0.24 mg/L', sub: '有肇事＝公共危險罪＋逮捕告知三項權利；無肇事＝行政罰', next: 'step_accident' },
         { value: 'over_025', title: '0.25 mg/L 以上', sub: '直接進入公共危險罪（須逮捕並告知三項權利）', next: 'step_road' },
-        { value: 'refuse', title: '拒絕酒測', sub: '須先告知拒測後果並全程錄影；視情節評估有無不能安全駕駛事證及行政罰', next: 'step_road' }
+        { value: 'refuse', title: '拒絕酒測', sub: '先告知拒測後果並全程錄影；視情節評估不能安全駕駛及行政罰', next: 'step_road' }
       ]
     },
     step_accident: {
       key: 'accident',
       title: '0.15 - 0.24 mg/L：有無肇事？',
-      desc: '有肇事者進入公共危險罪並須逮捕告知三項權利；無肇事者進入行政罰。',
+      desc: '有肇事進入公共危險罪並須逮捕告知三項權利；無肇事進入行政罰。',
       options: [
         { value: 'yes', title: '有肇事', sub: '0.15 以上有肇事 → 公共危險罪（須逮捕告知三項權利）', next: 'step_road' },
         { value: 'no', title: '無肇事', sub: '0.15 - 0.24 無肇事 → 行政罰', next: 'step_road' }
@@ -23,9 +23,9 @@ window.DUI_DATA = {
     step_road: {
       key: 'roadType',
       title: '道路或非道路？',
-      desc: '道路適用道交條例與刑法第 185-3 條；非道路不開道交罰單，但動力交通工具仍可能涉犯刑法第 185-3 條。',
+      desc: '道路適用道交條例與刑法第 185-3 條；非道路不開道交罰單，動力交通工具仍可能涉犯刑法第 185-3 條。',
       options: [
-        { value: 'road', title: '道路', sub: '公路、街道、巷弄、廣場、騎樓或其他供公眾通行之地方', next: 'step_discovery' },
+        { value: 'road', title: '道路', sub: '供公眾通行之道路', next: 'step_discovery' },
         { value: 'non_road', title: '非道路', sub: '非屬供公眾通行道路之場域', next: 'step_discovery' }
       ]
     },
@@ -50,22 +50,28 @@ window.DUI_DATA = {
     }
   },
 
-  evaluateCase(ans) {
-    const actions = [];
-    const hasAccident = ans.accident === 'yes' || ans.discovery === 'accident_scene';
-    const isRefuse = ans.bac === 'refuse';
-    const isCriminal = ans.bac === 'over_025' || (ans.bac === '015_024' && hasAccident);
-    const hasImpound = ans.roadType === 'road' && (ans.bac === '015_024' || ans.bac === 'over_025' || isRefuse);
+  evaluateCase: function(ans) {
+    var actions = [];
+    var hasAccident = ans.accident === 'yes' || ans.discovery === 'accident_scene';
+    var isRefuse = ans.bac === 'refuse';
+    var isCriminal = ans.bac === 'over_025' || (ans.bac === '015_024' && hasAccident);
+    var hasImpound = ans.roadType === 'road' && (ans.bac === '015_024' || ans.bac === 'over_025' || isRefuse);
 
-    let criminalTitle = isCriminal ? '【公共危險罪】須逮捕並告知三項權利' : (isRefuse ? '【拒絕酒測】先告知拒測後果並全程錄影' : (ans.bac === '015_024' ? '【行政罰】無肇事且未達 0.25' : '未達 0.15 mg/L 標準'));
-    let criminalDesc = isCriminal
-      ? '涉犯刑法第 185-3 條公共危險罪，須依法逮捕並告知三項權利（① 犯罪嫌疑事由；② 保持緘默權；③ 選任辯護人權，含低收入戶、中低收入戶、原住民或其他依法令得請求法律扶助者得請求法律扶助）及提審法第 2 條權利。'
-      : (isRefuse ? '已明確告知拒測法律後果仍拒測者，依道交條例第 35 條第 4 項舉發；若另有客觀事證足認不能安全駕駛，另審是否涉犯刑法第 185-3 條並逮捕告知三項權利。' : (ans.bac === '015_024' ? '酒測值 0.15 - 0.24 mg/L 且無肇事，依行政罰程序辦理。' : '酒測值 0 - 0.14 mg/L，未達一般酒駕超標門檻。'));
-    let criminalClass = isCriminal ? 'verdict-danger' : (isRefuse ? 'verdict-warning' : 'verdict-success');
+    var criminalTitle = isCriminal
+      ? '【公共危險罪】須逮捕並告知三項權利'
+      : (isRefuse ? '【拒絕酒測】先告知拒測後果並全程錄影' : (ans.bac === '015_024' ? '【行政罰】無肇事且未達 0.25' : '未達 0.15 mg/L 標準'));
 
-    let adminTitle = '';
-    let adminDesc = '';
-    let adminClass = 'verdict-success';
+    var criminalDesc = isCriminal
+      ? '涉犯刑法第 185-3 條公共危險罪，須依法逮捕並告知三項權利（犯罪嫌疑、緘默權、辯護人權含低收/中低收/原住民法扶）及提審法第 2 條權利。'
+      : (isRefuse
+          ? '已明確告知拒測法律後果仍拒測者，依道交條例第 35 條第 4 項舉發；若有客觀事證足認不能安全駕駛，另審是否涉犯刑法第 185-3 條並逮捕告知三項權利。'
+          : (ans.bac === '015_024' ? '酒測值 0.15 - 0.24 mg/L 且無肇事，依行政罰程序辦理。' : '酒測值 0 - 0.14 mg/L，未達一般酒駕超標門檻。'));
+
+    var criminalClass = isCriminal ? 'verdict-danger' : (isRefuse ? 'verdict-warning' : 'verdict-success');
+
+    var adminTitle = '';
+    var adminDesc = '';
+    var adminClass = 'verdict-success';
 
     if (ans.roadType === 'non_road') {
       adminTitle = '【共開 0 張罰單】非道路不開道交罰單';
@@ -76,31 +82,49 @@ window.DUI_DATA = {
       adminDesc = '開給誰：無。法條號碼：未達道交條例第 35 條超標門檻。怎麼開：不開酒駕罰單（若有其他違規另依該條款舉發）。';
     } else if (isRefuse) {
       adminTitle = '【共開 1 張】駕駛人拒測單（1 張）＋ 當場移置保管車輛';
-      adminDesc = '駕駛人（1 張）：法條號碼 道交條例第 35 條第 4 項（10 年內拒測累犯加重處罰；當場移置保管車輛、吊銷駕照、施以道安講習及扣繳牌照）。\n手開單注意：應到案處所寫「駕籍地」（勿寫發生地）；應到案時間為「30 日」內。';
+      adminDesc = '駕駛人（1 張）：法條號碼 道交條例第 35 條第 4 項（10 年內拒測累犯加重處罰；當場移置保管車輛、吊銷駕照、施以道安講習及扣繳牌照）。手開單注意：應到案處所寫「駕籍地」（勿寫發生地）；應到案時間為「30 日」內。';
       adminClass = 'verdict-danger';
     } else {
-      const hasPax = ans.passengers === 'yes' && ans.bac === 'over_025';
+      var hasPax = ans.passengers === 'yes' && ans.bac === 'over_025';
       adminTitle = hasPax ? '【共開至少 2 張】駕駛人 1 張 ＋ 同車乘客 1 張' : '【共開 1 張】駕駛人 1 張';
-      adminDesc = `駕駛人（1 張）：法條號碼 道交條例第 35 條第 1 項第 1 款（累犯第 3 項）。${hasPax ? '同車乘客（1 張）：法條號碼 道交條例第 35 條第 8 項（駕駛人 ≥ 0.25 且乘客年滿 18 歲）。' : ''}\n手開單注意：應到案處所為「駕籍地」（勿寫發生地）；應到案時間為「30 日」內；並當場移置保管車輛。另有車主涉明知不予禁止者，視情節審第 35 條第 7 項。`;
+      adminDesc = '駕駛人（1 張）：法條號碼 道交條例第 35 條第 1 項第 1 款（累犯第 3 項）。' +
+        (hasPax ? '同車乘客（1 張）：法條號碼 道交條例第 35 條第 8 項（駕駛人 ≥ 0.25 且乘客年滿 18 歲）。' : '') +
+        '手開單注意：應到案處所寫「駕籍地」（勿寫發生地）；應到案時間為「30 日」內；並當場移置保管車輛。另有車主涉明知不予禁止者，視情節審第 35 條第 7 項。';
       adminClass = 'verdict-warning';
     }
 
-    if (hasImpound) actions.push('【移置保管車輛】依道交條例第 35 條規定，當場移置保管該汽機車（並依規定辦理扣繳牌照、保管場交接與填寫移置保管單據）。');
-    if (isRefuse) actions.push('【告知拒測後果】須明確告知拒測將處罰鍰（18 萬元，10 年內累犯加重）、當場移置保管車輛、吊銷駕駛執照、施以道路交通安全講習及吊扣牌照等法律後果，並全程錄影。');
+    if (hasImpound) {
+      actions.push('【移置保管車輛】依道交條例第 35 條規定，當場移置保管該汽機車（並依規定辦理扣繳牌照、保管場交接與填寫移置保管單據）。');
+    }
+    if (isRefuse) {
+      actions.push('【告知拒測後果】須明確告知拒測將處罰鍰（18 萬元，10 年內累犯加重）、當場移置保管車輛、吊銷駕駛執照、施以道路交通安全講習及吊扣牌照等法律後果，並全程錄影。');
+    }
     if (hasAccident) {
       actions.push('【卷宗】有肇事：交通事故卷宗（含交通事故圖）＋ 公共危險卷宗都要。');
     } else if (isCriminal || isRefuse) {
-      actions.push('【卷宗】製作相關卷宗，請至「卷宗檢核」逐條勾選附卷文件（含移置保管車輛單據、酒測單／拒測紀錄、紅單影本、陳報單、平衡測試、筆錄、逮捕通知書、親友通知書、國民影像、戶役政、前科素行）。');
+      actions.push('【卷宗】製作相關卷宗，請至卷宗檢核逐條勾選附卷文件（含移置保管車輛單據、酒測單／拒測紀錄、紅單影本、陳報單、平衡測試、筆錄、逮捕通知書、親友通知書、國民影像、戶役政、前科素行）。');
     }
     actions.push('【手開單必記】應到案處所寫「駕籍地」（易誤寫成發生地）；應到案時間「30 日」。');
     if (ans.passengers === 'yes') {
-      actions.push(ans.bac === 'over_025' ? '【車上有人】駕駛人 ≥ 0.25，年滿 18 歲同車乘客（非 70 歲以上、心智障礙、汽車運輸業乘客）另開 1 張（第 35 條第 8 項）。' : '【車上有人】非駕駛人 ≥ 0.25 情形，不開同車乘客連坐罰單。');
+      actions.push(ans.bac === 'over_025'
+        ? '【車上有人】駕駛人 ≥ 0.25，年滿 18 歲同車乘客（非 70 歲以上、心智障礙、汽車運輸業乘客）另開 1 張（第 35 條第 8 項）。'
+        : '【車上有人】非駕駛人 ≥ 0.25 情形，不開同車乘客連坐罰單。');
     } else {
       actions.push('【車上沒人】單獨駕駛，無同車乘客罰單。');
     }
 
-    return { criminalTitle, criminalDesc, criminalClass, adminTitle, adminDesc, adminClass, actions, recommendedTicketId: isRefuse ? 'ticket_dui_refuse' : 'ticket_dui_general' };
+    return {
+      criminalTitle: criminalTitle,
+      criminalDesc: criminalDesc,
+      criminalClass: criminalClass,
+      adminTitle: adminTitle,
+      adminDesc: adminDesc,
+      adminClass: adminClass,
+      actions: actions,
+      recommendedTicketId: isRefuse ? 'ticket_dui_refuse' : 'ticket_dui_general'
+    };
   },
+
   tickets: [
     {
       id: 'ticket_dui_general',
@@ -135,7 +159,6 @@ window.DUI_DATA = {
       note: '開給駕駛人（1 張），並當場移置保管車輛。應到案處所寫「駕籍地」、應到案時間「30 日」。'
     }
   ],
-
   notes: [
     {
       id: 'note_first_night_stop',
