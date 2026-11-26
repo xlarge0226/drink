@@ -9,34 +9,42 @@
       --bg:#0f172a; --card:#1e293b; --card2:#162032; --inp:#0b1220;
       --txt:#f8fafc; --sub:#94a3b8; --bdr:#334155; --acc:#38bdf8;
       --acc-bg:rgba(56,189,248,.14); --red:#f87171; --red-bg:rgba(248,113,113,.14);
+      --ok:#34d399; --ok-bg:rgba(52,211,153,.14); --warn:#fbbf24; --warn-bg:rgba(251,191,36,.14);
     }
     body.bright {
       --bg:#f1f5f9; --card:#fff; --card2:#f8fafc; --inp:#f1f5f9;
       --txt:#0f172a; --sub:#475569; --bdr:#cbd5e1; --acc:#0284c7;
       --acc-bg:rgba(2,132,199,.12); --red:#dc2626; --red-bg:rgba(220,38,38,.1);
+      --ok:#059669; --ok-bg:rgba(5,150,105,.12); --warn:#b45309; --warn-bg:rgba(180,83,9,.12);
     }
     *{box-sizing:border-box}
-    body{margin:0;padding:0 0 80px;font-family:sans-serif;background:var(--bg);color:var(--txt);line-height:1.5}
+    body{margin:0;padding:0 0 84px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);line-height:1.55}
     header{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bdr)}
     .title{font-weight:700;font-size:1.05rem}
     .mode-btn{background:var(--acc-bg);color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:4px 12px;font-size:.8rem;cursor:pointer}
-    main{max-width:720px;margin:0 auto;padding:12px}
+    main{max-width:740px;margin:0 auto;padding:12px}
     .page{display:none}.page.active{display:block}
     .card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:14px;margin-bottom:12px}
     .h{font-weight:700;font-size:1rem;margin-bottom:4px}
     .s{color:var(--acc);font-size:.82rem;margin-bottom:8px}
     .d{color:var(--sub);font-size:.9rem;margin-bottom:10px;white-space:pre-line}
-    .choice{display:block;width:100%;text-align:left;background:var(--card2);color:var(--txt);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
-    .btn{background:var(--card2);color:var(--txt);border:1px solid var(--bdr);border-radius:8px;padding:7px 12px;font-size:.85rem;cursor:pointer;margin-right:6px}
+    .choice{display:block;width:100%;text-align:left;background:var(--card2);color:var(--txt);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-size:.92rem}
+    .choice:hover{border-color:var(--acc)}
+    .btn{background:var(--card2);color:var(--txt);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;font-size:.88rem;cursor:pointer;margin-right:6px;margin-top:4px}
     .pri{background:var(--acc);color:#082f49;border:none;font-weight:700}
     .copy{background:var(--acc-bg);color:var(--acc);border:1px solid var(--acc);border-radius:8px;padding:5px 10px;font-size:.8rem;cursor:pointer;float:right}
-    .tpl{background:var(--inp);border:1px dashed var(--bdr);border-radius:8px;padding:10px;margin:8px 0;white-space:pre-line;font-size:.9rem}
-    .chk{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr);cursor:pointer}
+    .tpl{background:var(--inp);border:1px dashed var(--bdr);border-radius:8px;padding:10px;margin:8px 0 10px;white-space:pre-line;font-size:.88rem}
+    .verdict-box{background:var(--ok-bg);border:1px solid var(--ok);border-radius:8px;padding:10px;margin:8px 0 10px;white-space:pre-line;font-size:.9rem}
+    .note-arrest{background:var(--red-bg);border:1px solid var(--red);color:var(--txt);border-radius:8px;padding:10px;margin:8px 0 10px;white-space:pre-line;font-size:.88rem;font-weight:600}
+    .hint-place{background:var(--warn-bg);border:1px solid var(--warn);border-radius:8px;padding:10px;margin:8px 0 10px;white-space:pre-line;font-size:.88rem}
+    .chk{display:flex;align-items:flex-start;gap:10px;padding:9px 2px;border-bottom:1px solid var(--bdr);cursor:pointer}
     .chk:last-child{border-bottom:none}
-    .inp{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--inp);color:var(--txt);margin-bottom:10px}
+    .chk input{margin-top:4px;transform:scale(1.15)}
+    .divider-line{border:none;border-top:2px solid var(--acc);margin:16px 0}
+    .inp{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--inp);color:var(--txt);margin-bottom:10px;font-size:.92rem}
     .timer{text-align:center;font-size:2.8rem;font-weight:800;color:var(--acc);margin:12px 0}
     #err{display:none;background:var(--red-bg);border:1px solid var(--red);border-radius:10px;padding:10px;margin-bottom:12px;font-size:.85rem;white-space:pre-line}
-    nav{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);background:var(--card);border-top:1px solid var(--bdr);padding:6px 2px}
+    nav{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);background:var(--card);border-top:1px solid var(--bdr);padding:6px 2px;z-index:10}
     .nb{background:none;border:none;color:var(--sub);font-size:.7rem;cursor:pointer;padding:4px 0}
     .nb.active{color:var(--acc);font-weight:700}
   </style>
@@ -53,7 +61,10 @@
     <section id="page-notes" class="page"><div id="notes-container"></div></section>
     <section id="page-checklist" class="page"><div id="checklist-container"></div></section>
     <section id="page-laws" class="page">
-      <div class="card"><div class="h">法令查詢</div><input id="law-q" class="inp" placeholder="搜尋法條或關鍵字..." oninput="renderLaws()" /></div>
+      <div class="card">
+        <div class="h">法令查詢</div>
+        <input id="law-q" class="inp" placeholder="搜尋法條、金額、移置保管、駕照、講習..." oninput="renderLaws()" />
+      </div>
       <div id="laws-container"></div>
     </section>
     <section id="page-timer" class="page">
@@ -75,17 +86,17 @@
     <button class="nb" data-p="laws" onclick="go('laws',this)">⚖️<br>法令查詢</button>
     <button class="nb" data-p="timer" onclick="go('timer',this)">⏱️<br>15分計時</button>
   </nav>
-      <script>
+  <script>
     window.addEventListener('error',function(e){var b=document.getElementById('err');if(b){b.style.display='block';b.textContent='錯誤：'+(e.message||'')+(e.lineno?' (第'+e.lineno+'行)':'');}});
   </script>
   <script src="./data.js" onload="if(typeof initApp==='function')initApp()" onerror="showDataErr()"></script>
   <script>
-    var stepId='step_start', hist=[], inited=false, sec=900, iv=null, twoTicketsMode=false;
+    var acknowledged=false, stepId='step_1_bac', hist=[], inited=false, sec=900, iv=null, twoTicketsMode=false;
     function gd(){return window.DUI_DATA||(typeof DUI_DATA!=='undefined'?DUI_DATA:null);}
     function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function showDataErr(){var c=document.getElementById('wizard-container');if(c)c.innerHTML='<div class="card"><div class="h">讀取失敗</div><div class="d">無法載入 ./data.js</div></div>';}
     function toggleMode(){document.body.classList.toggle('bright');}
-    function isTwoTicketsStep(n){return n==='verdict_2_tickets'||String(n||'').indexOf('res_2_')===0;}
+    function isTwoTicketsStep(n){return n==='verdict_2_tickets'||String(n||'').indexOf('res_2_')===0||String(n||'').indexOf('two_')===0;}
     function go(p,el){
       document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
       var t=document.getElementById('page-'+p);if(t)t.classList.add('active');
@@ -125,11 +136,30 @@
       }
       renderCards('tickets-container',list,'尚無罰單例稿');
     }
+    function ackBriefing(){
+      acknowledged=true;
+      hist=[];
+      twoTicketsMode=false;
+      var d=gd();
+      stepId=(d&&d.steps&&d.steps.step_1_bac)?'step_1_bac':(d&&d.steps?Object.keys(d.steps)[0]:'step_1_bac');
+      renderWizard();
+    }
     function renderWizard(){
-      var d=gd(),box=document.getElementById('wizard-container');if(!box||!d||!d.steps)return;
+      var d=gd(),box=document.getElementById('wizard-container');if(!box||!d)return;
+      if(!acknowledged){
+        var b=d.briefing||{};
+        box.innerHTML='<div class="card"><div class="h">'+esc(b.title||'現場先期提示與告知')+'</div>'+
+          '<div class="s">'+(esc(b.sub||'抓到疑似酒駕時，請先完成以下詢問與告知'))+'</div>'+
+          '<div class="d" style="color:var(--txt)">'+esc(b.body||'')+'</div>'+
+          '<button class="btn pri" type="button" onclick="ackBriefing()">已了解</button></div>';
+        return;
+      }
+      if(!d.steps)return;
       var st=d.steps[stepId]||d.steps[Object.keys(d.steps)[0]];if(!st)return;
       var html='<div class="card"><div class="h">'+esc(st.title)+'</div>'+(st.sub?'<div class="s">'+esc(st.sub)+'</div>':'')+(st.desc?'<div class="d">'+esc(st.desc)+'</div>':'');
-      if(st.verdict)html+='<div class="tpl"><div class="h">'+esc(st.verdict)+'</div><div class="d" style="margin-bottom:0">'+esc(st.verdictDetail||'')+'</div></div>';
+      if(st.arrestNote)html+='<div class="note-arrest">'+esc(st.arrestNote)+'</div>';
+      if(st.verdict)html+='<div class="verdict-box"><div class="h">'+esc(st.verdict)+'</div>'+(st.verdictDetail?'<div class="d" style="margin-bottom:0">'+esc(st.verdictDetail)+'</div>':'')+'</div>';
+      if(st.placeHint)html+='<div class="hint-place">'+esc(st.placeHint)+'</div>';
       if(Array.isArray(st.choices)){st.choices.forEach(function(c){html+='<button class="choice" type="button" onclick="pickStep(\''+esc(c.next||'')+'\')">'+esc(c.label)+'</button>';});}
       if(hist.length)html+='<button class="btn" type="button" onclick="backStep()">回上一步</button>';
       html+='<button class="btn" type="button" onclick="resetStep()">重新開始</button></div>';
@@ -145,15 +175,27 @@
         if(d.tickets)renderTickets(d.tickets);
       }
     }
-    function backStep(){if(hist.length){stepId=hist.pop();twoTicketsMode=isTwoTicketsStep(stepId);renderWizard();}}
-    function resetStep(){hist=[];twoTicketsMode=false;var d=gd();if(d&&d.steps)stepId=Object.keys(d.steps)[0];renderWizard();}
+    function backStep(){
+      if(hist.length){stepId=hist.pop();twoTicketsMode=isTwoTicketsStep(stepId);renderWizard();}
+      else{acknowledged=false;renderWizard();}
+    }
+    function resetStep(){
+      acknowledged=false;hist=[];twoTicketsMode=false;
+      var d=gd();if(d&&d.steps)stepId=(d.steps.step_1_bac?'step_1_bac':Object.keys(d.steps)[0]);
+      renderWizard();
+    }
     function renderChecklist(){
       var d=gd(),box=document.getElementById('checklist-container');if(!box)return;
       if(!d||!Array.isArray(d.checklist)||!d.checklist.length){box.innerHTML='<div class="card"><div class="d">尚無檢核項目</div></div>';return;}
-      box.innerHTML='<div class="card">'+d.checklist.map(function(c){
+      var crim=d.checklist.filter(function(c){return c.group==='刑案'||String(c.id||'').indexOf('crim_')===0;});
+      var traf=d.checklist.filter(function(c){return c.group==='交通'||String(c.id||'').indexOf('traf_')===0;});
+      var mkItem=function(c){
         var ttl=typeof c==='string'?c:(c.title||c.label||'');
         return '<label class="chk"><input type="checkbox"'+(c.checked?' checked':'')+' /><div><div style="font-weight:600">'+esc(ttl)+'</div>'+(c.detail?'<div class="d" style="margin:0">'+esc(c.detail)+'</div>':'')+'</div></label>';
-      }).join('')+'</div>';
+      };
+      box.innerHTML='<div class="card"><div class="h">刑案卷宗檢核</div><div class="s">刑事偵查／移送檢核項目</div>'+crim.map(mkItem).join('')+'</div>'+
+        '<hr class="divider-line" />'+
+        '<div class="card"><div class="h">交通卷宗檢核</div><div class="s">道路交通違規舉發／保管處置檢核項目</div>'+traf.map(mkItem).join('')+'</div>';
     }
     function renderLaws(){
       var d=gd(),box=document.getElementById('laws-container');if(!box)return;
@@ -177,6 +219,5 @@
     }
     document.addEventListener('DOMContentLoaded',function(){if(gd())initApp();});
   </script>
-
 </body>
 </html>
