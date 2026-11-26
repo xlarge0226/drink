@@ -35,7 +35,7 @@
       color: var(--text-primary);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
       line-height: 1.6;
-      padding-bottom: 84px; /* 留給底部導覽列 */
+      padding-bottom: 84px;
     }
 
     header {
@@ -86,7 +86,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 麵包屑與進度條 */
     .breadcrumb {
       display: flex;
       flex-wrap: wrap;
@@ -102,7 +101,6 @@
       border-radius: 6px;
     }
 
-    /* 卡片與選項按鈕 */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -159,7 +157,6 @@
       display: block;
     }
 
-    /* 多選條件（加重因子） */
     .check-option {
       display: flex;
       align-items: flex-start;
@@ -205,7 +202,6 @@
       color: var(--text-primary);
     }
 
-    /* 判定結果區塊 */
     .verdict-box {
       border-radius: 12px;
       padding: 14px 16px;
@@ -227,7 +223,6 @@
     .verdict-label {
       font-size: 0.78rem;
       font-weight: 700;
-      text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 4px;
     }
@@ -249,7 +244,6 @@
       border-bottom: none;
     }
 
-    /* 罰單例稿樣式 */
     .ticket-box {
       background: #0d121c;
       border: 1px dashed #3b4a63;
@@ -272,7 +266,6 @@
       cursor: pointer;
     }
 
-    /* 計時器 */
     .timer-display {
       font-size: 3.4rem;
       font-weight: 800;
@@ -286,7 +279,6 @@
       color: var(--success);
     }
 
-    /* 搜尋框 */
     .search-input {
       width: 100%;
       background: #1a2232;
@@ -298,7 +290,6 @@
       margin-bottom: 14px;
     }
 
-    /* 底部頁籤導覽 */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -359,13 +350,11 @@
   </header>
 
   <main>
-    <!-- 分頁 1：主畫面（一層層決策引導） -->
     <section id="tab-home" class="tab-section active">
       <div id="breadcrumb" class="breadcrumb"></div>
       <div id="wizard-container"></div>
     </section>
 
-    <!-- 分頁 2：罰單例稿 -->
     <section id="tab-tickets" class="tab-section">
       <div class="card">
         <div class="step-title">舉發違反道路交通管理事件例稿</div>
@@ -374,7 +363,6 @@
       <div id="tickets-container"></div>
     </section>
 
-    <!-- 分頁 3：卷宗檢核 -->
     <section id="tab-checklist" class="tab-section">
       <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
         <div>
@@ -386,13 +374,11 @@
       <div id="checklist-container"></div>
     </section>
 
-    <!-- 分頁 4：法令查詢 -->
     <section id="tab-laws" class="tab-section">
       <input type="text" id="law-search" class="search-input" placeholder="搜尋關鍵字（例如：35條、185-3、拒測、連坐、微電車、扣牌）..." oninput="renderLaws(this.value)" />
       <div id="laws-container"></div>
     </section>
 
-    <!-- 分頁 5：15分鐘計時器 -->
     <section id="tab-timer" class="tab-section">
       <div class="card">
         <div class="step-title">飲酒結束／漱口 15 分鐘計時器</div>
@@ -407,7 +393,6 @@
     </section>
   </main>
 
-  <!-- 底部 5 頁籤 -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="tab-home" onclick="switchTab('tab-home', this)">
       <span class="nav-icon">🧭</span>
@@ -432,15 +417,31 @@
     </button>
   </nav>
 
-  <!-- 載入外部資料檔 -->
-  <script src="data.js"></script>
+  <script src="./data.js" onload="initApp()" onerror="showDataError()"></script>
   <script>
-    // 狀態管理
     let historyStack = [];
     let currentStepId = 'step_road';
     let answers = {};
 
-    // 分頁切換
+    function getData() {
+      return window.DUI_DATA || (typeof DUI_DATA !== 'undefined' ? DUI_DATA : null);
+    }
+
+    function showDataError() {
+      const container = document.getElementById('wizard-container');
+      if (container) {
+        container.innerHTML = `
+          <div class="card verdict-box verdict-danger">
+            <div class="verdict-label">檔案連結失敗</div>
+            <div class="verdict-main">找不到或無法讀取 ./data.js</div>
+            <div style="font-size:0.88rem; margin-top:6px;">
+              請確認：1. 專案根目錄有 <code>data.js</code>（全小寫）；2. <code>data.js</code> 沒有語法錯誤。
+            </div>
+          </div>
+        `;
+      }
+    }
+
     function switchTab(tabId, btnEl) {
       document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
@@ -455,16 +456,16 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 渲染引導式決策樹
     function renderWizard() {
+      const data = getData();
+      if (!data) return showDataError();
+
       const container = document.getElementById('wizard-container');
       const bc = document.getElementById('breadcrumb');
-
-      // 渲染麵包屑
       bc.innerHTML = historyStack.map(h => `<span class="crumb-item">${h.label}</span>`).join('');
 
       if (currentStepId === 'RESULT') {
-        const result = DUI_DATA.evaluateCase(answers);
+        const result = data.evaluateCase(answers);
         container.innerHTML = `
           <div class="card">
             <div class="step-title">案件處置與舉發判定結果</div>
@@ -499,7 +500,7 @@
         return;
       }
 
-      const step = DUI_DATA.steps[currentStepId];
+      const step = data.steps[currentStepId];
       if (!step) return;
 
       if (step.type === 'multi') {
@@ -527,7 +528,6 @@
         return;
       }
 
-      // 單選步驟
       container.innerHTML = `
         <div class="card">
           <div class="step-title">${step.title}</div>
@@ -588,10 +588,11 @@
       }
     }
 
-    // 渲染罰單例稿
     function renderTickets() {
+      const data = getData();
+      if (!data) return;
       const container = document.getElementById('tickets-container');
-      container.innerHTML = DUI_DATA.tickets.map(t => `
+      container.innerHTML = data.tickets.map(t => `
         <div class="card" id="ticket-${t.id}">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
             <div>
@@ -614,11 +615,12 @@
       });
     }
 
-    // 渲染卷宗檢核
     function renderChecklist() {
+      const data = getData();
+      if (!data) return;
       const saved = JSON.parse(localStorage.getItem('dui_checklist_v1') || '{}');
       const container = document.getElementById('checklist-container');
-      container.innerHTML = DUI_DATA.checklists.map((group, gIdx) => `
+      container.innerHTML = data.checklists.map((group, gIdx) => `
         <div class="card">
           <div class="step-title" style="font-size:1.02rem; margin-bottom:10px; color:var(--accent);">${group.category}</div>
           <div class="option-list">
@@ -651,10 +653,11 @@
       renderChecklist();
     }
 
-    // 渲染法令查詢
     function renderLaws(keyword = '') {
+      const data = getData();
+      if (!data) return;
       const kw = keyword.trim().toLowerCase();
-      const filtered = DUI_DATA.laws.filter(law =>
+      const filtered = data.laws.filter(law =>
         !kw ||
         law.title.toLowerCase().includes(kw) ||
         law.tags.toLowerCase().includes(kw) ||
@@ -670,7 +673,6 @@
       `).join('') || `<div class="card" style="text-align:center; color:var(--text-secondary);">查無相符法條內容</div>`;
     }
 
-    // 15 分鐘計時器
     let timerSeconds = 15 * 60;
     let timerInterval = null;
 
@@ -728,12 +730,16 @@
       updateTimerUI();
     }
 
-    // 初始化
-    renderWizard();
-    renderTickets();
-    renderChecklist();
-    renderLaws();
+    function initApp() {
+      renderWizard();
+      renderTickets();
+      renderChecklist();
+      renderLaws();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (getData()) initApp();
+    });
   </script>
 </body>
 </html>
-
