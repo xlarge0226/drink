@@ -75,7 +75,7 @@
     <button class="nb" data-p="laws" onclick="go('laws',this)">⚖️<br>法令查詢</button>
     <button class="nb" data-p="timer" onclick="go('timer',this)">⏱️<br>15分計時</button>
   </nav>
-    <script>
+      <script>
     window.addEventListener('error',function(e){var b=document.getElementById('err');if(b){b.style.display='block';b.textContent='錯誤：'+(e.message||'')+(e.lineno?' (第'+e.lineno+'行)':'');}});
   </script>
   <script src="./data.js" onload="if(typeof initApp==='function')initApp()" onerror="showDataErr()"></script>
@@ -85,12 +85,17 @@
     function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function showDataErr(){var c=document.getElementById('wizard-container');if(c)c.innerHTML='<div class="card"><div class="h">讀取失敗</div><div class="d">無法載入 ./data.js</div></div>';}
     function toggleMode(){document.body.classList.toggle('bright');}
+    function isTwoTicketsStep(n){return n==='verdict_2_tickets'||String(n||'').indexOf('res_2_')===0;}
     function go(p,el){
       document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
       var t=document.getElementById('page-'+p);if(t)t.classList.add('active');
       document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
       if(el)el.classList.add('active');
-      if(p==='tickets'){var d=gd();if(d)renderTickets(d.tickets);}
+      var d=gd();
+      if(p==='tickets'&&d)renderTickets(d.tickets);
+      if(p==='notes'&&d)renderCards('notes-container',d.notes,'尚無筆錄範例');
+      if(p==='checklist'&&d)renderChecklist();
+      if(p==='laws'&&d)renderLaws();
     }
     function cp(txt,btn){
       var ok=function(){if(!btn)return;var o=btn.textContent;btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent=o;},1500);};
@@ -109,7 +114,7 @@
       }).join('');
     }
     function renderTickets(arr){
-      if(!Array.isArray(arr)){renderCards('tickets',[],'尚無罰單例稿');return;}
+      if(!Array.isArray(arr)){renderCards('tickets-container',[],'尚無罰單例稿');return;}
       var list=arr.slice();
       if(twoTicketsMode){
         list.sort(function(a,b){
@@ -118,7 +123,7 @@
           return a2-b2;
         });
       }
-      renderCards('tickets',list,'尚無罰單例稿');
+      renderCards('tickets-container',list,'尚無罰單例稿');
     }
     function renderWizard(){
       var d=gd(),box=document.getElementById('wizard-container');if(!box||!d||!d.steps)return;
@@ -135,12 +140,12 @@
       if(n&&d&&d.steps&&d.steps[n]){
         hist.push(stepId);
         stepId=n;
-        twoTicketsMode=(n==='verdict_2_tickets');
+        twoTicketsMode=isTwoTicketsStep(n);
         renderWizard();
         if(d.tickets)renderTickets(d.tickets);
       }
     }
-    function backStep(){if(hist.length){stepId=hist.pop();twoTicketsMode=(stepId==='verdict_2_tickets');renderWizard();}}
+    function backStep(){if(hist.length){stepId=hist.pop();twoTicketsMode=isTwoTicketsStep(stepId);renderWizard();}}
     function resetStep(){hist=[];twoTicketsMode=false;var d=gd();if(d&&d.steps)stepId=Object.keys(d.steps)[0];renderWizard();}
     function renderChecklist(){
       var d=gd(),box=document.getElementById('checklist-container');if(!box)return;
@@ -155,7 +160,7 @@
       if(!d||!Array.isArray(d.laws)||!d.laws.length){box.innerHTML='<div class="card"><div class="d">尚無法令資料</div></div>';return;}
       var q=(document.getElementById('law-q')?document.getElementById('law-q').value:'').trim().toLowerCase();
       var list=d.laws.filter(function(l){return !q||((l.title||'')+' '+(l.sub||'')+' '+(l.content||l.text||'')).toLowerCase().indexOf(q)!==-1;});
-      renderCards('laws',list,'查無符合條文');
+      renderCards('laws-container',list,'查無符合條文');
     }
     function showT(){var m=Math.floor(Math.max(0,sec)/60),r=Math.max(0,sec)%60,el=document.getElementById('t-disp');if(el)el.textContent=(m<10?'0':'')+m+':'+(r<10?'0':'')+r;}
     function toggleTimer(){
@@ -167,10 +172,11 @@
     function resetTimer(n){if(iv){clearInterval(iv);iv=null;}sec=n;showT();var b=document.getElementById('t-btn');if(b)b.textContent='開始計時';}
     function initApp(){
       if(inited)return;var d=gd();if(!d)return showDataErr();inited=true;
-      renderWizard();renderTickets(d.tickets);renderCards('notes',d.notes,'尚無筆錄範例');
+      renderWizard();renderTickets(d.tickets);renderCards('notes-container',d.notes,'尚無筆錄範例');
       renderChecklist();renderLaws();showT();
     }
     document.addEventListener('DOMContentLoaded',function(){if(gd())initApp();});
   </script>
+
 </body>
 </html>
