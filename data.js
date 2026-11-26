@@ -82,7 +82,6 @@ window.DUI_DATA = {
       note: '共 10 題問答，不含提審法、三項權利告知與法律扶助。'
     }
   ],
-
   checklists: [
     {
       category: '卷宗檢核（逐條勾選）',
