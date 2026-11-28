@@ -89,7 +89,52 @@
   <script>
     window.addEventListener('error',function(e){var b=document.getElementById('err');if(b){b.style.display='block';b.textContent='錯誤：'+(e.message||'')+(e.lineno?' (第'+e.lineno+'行)':'');}});
   </script>
-  <script src="./data.js" onload="if(typeof initApp==='function')initApp()" onerror="showDataErr()"></script>
+  <script>
+window.DUI_DATA = {
+  briefing: {
+    title: '現場攔停告知與拒測法律效果',
+    subtitle: '抓到疑似酒駕時，請先完成以下詢問與告知（全程開啟密錄器錄音錄影）',
+    items: [
+      {
+        label: '1. 確認生理狀態與飲酒時間',
+        text: '詢問駕駛人：「何時飲用最後一口酒？距今是否已滿 15 分鐘？」（未滿 15 分鐘或有漱口、嘔吐情形，應先漱口並靜待滿 15 分鐘再行施測，並啟動「15分計時」）。'
+      },
+      {
+        label: '2. 依法告知拒測法律效果（道交條例第35條第4項）',
+        text: '明確告知：「若拒絕接受酒精濃度測試檢定，將處新臺幣 18 萬元罰鍰、當場移置保管該汽機車、吊銷駕駛執照（3 年內不得考領，致人重傷或死亡者終身不得考領），並施以道路交通安全講習；另得依刑事訴訟法第 205 條之 2 報請檢察官核發鑑定許可書強制抽血。」'
+      },
+      {
+        label: '3. 確認施測意願',
+        text: '請駕駛人明確表態「願意配合吹氣酒測」或「拒絕酒測」，並錄下完整對話畫面。'
+      }
+    ],
+    confirmText: '已完成告知，進入處置流程'
+  },
+  steps: [
+    {
+      id: 'step1',
+      question: '駕駛人是否同意接受吹氣酒測？',
+      options: [
+        { label: '同意吹氣酒測', next: 'step2_blow' },
+        { label: '明確拒絕酒測', conclusion: 'refuse_test' }
+      ]
+    },
+    {
+      id: 'step2_blow',
+      question: '酒測值達多少（mg/L 或 %）？',
+      options: [
+        { label: '0.15 mg/L 以上、未達 0.25 mg/L', conclusion: 'admin_only' },
+        { label: '0.25 mg/L 以上', conclusion: 'criminal_185_3' }
+      ]
+    }
+  ],
+  conclusions: [],
+  tickets: [],
+  notes: [],
+  checklist: [],
+  laws: []
+};
+</script>
   <script>
     var acknowledged=false, stepId='step_1_bac', hist=[], inited=false, sec=900, iv=null, twoTicketsMode=false;
     function gd(){return window.DUI_DATA||(typeof DUI_DATA!=='undefined'?DUI_DATA:null);}
