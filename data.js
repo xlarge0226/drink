@@ -1,4 +1,4 @@
-window.DUI_DATA = {
+ window.DUI_DATA = {
   briefing: {
     title: '現場攔停告知與拒測法律效果',
     subtitle: '抓到疑似酒駕時，請先完成以下詢問與告知（全程開啟密錄器錄音錄影）',
@@ -16,43 +16,10 @@ window.DUI_DATA = {
         text: '請駕駛人明確表態「願意配合吹氣酒測」或「拒絕酒測」，並錄下完整對話畫面。'
       }
     ],
-    confirmText: '已完成告知，進入處置流程'
+    confirmText: '已了解'
   },
-    steps: [
-    {
-      id: 'step1',
-      question: '駕駛人是否同意接受吹氣酒測？',
-      options: [
-        { label: '同意吹氣酒測', next: 'step2_blow' },
-        { label: '明確拒絕酒測', conclusion: 'refuse_test' }
-      ]
-    },
-    {
-      id: 'step2_blow',
-      question: '酒測值達多少（mg/L）？',
-      options: [
-        { label: '0.15 mg/L 以上、未達 0.25 mg/L', conclusion: 'admin_only' },
-        { label: '0.25 mg/L 以上', conclusion: 'criminal_185_3' }
-      ]
-    }
-  ],
-  conclusions: [
-    {
-      id: 'refuse_test',
-      title: '拒絕酒測處置',
-      summary: '依道交條例第 35 條第 4 項製單舉發、當場移置保管車輛、吊扣／吊銷駕照（依規定辦理），並評估是否依刑訴法第 205 條之 2 報請檢察官核發鑑定許可書抽血。'
-    },
-    {
-      id: 'admin_only',
-      title: '未達刑法標準（純行政罰）',
-      summary: '依道交條例第 35 條第 1 項第 1 款製單舉發，並視違規情節移置保管車輛或代保管。'
-    },
-    {
-      id: 'criminal_185_3',
-      title: '達刑法第 185-3 條標準（公共危險罪）',
-      summary: '吐氣所含酒精濃度達每公升 0.25 毫克以上，涉犯刑法第 185-3 條公共危險罪，應依法詢問、製作筆錄並報請檢察官偵辦，同時依道交條例第 35 條舉發及移置保管車輛。'
-    }
-  ],
+  steps: [],
+  conclusions: [],
   tickets: [],
   notes: [],
   checklist: [],
